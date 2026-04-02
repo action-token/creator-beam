@@ -1,0 +1,235 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+:root {
+    /* Soft light theme */
+    --background: 250 25% 96%;
+    --foreground: 250 20% 18%;
+
+    --card: 250 25% 94%;
+    --card-foreground: 250 20% 18%;
+
+    --popover: 250 25% 96%;
+    --popover-foreground: 250 20% 18%;
+
+    --primary: 200 70% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 45% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 250 20% 88%;
+    --muted-foreground: 250 15% 45%;
+
+    --accent: 200 70% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 10 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 250 20% 82%;
+    --input: 250 20% 85%;
+    --ring: 200 70% 50%;
+
+    --chart-1: 200 70% 50%;
+    --chart-2: 270 45% 55%;
+    --chart-3: 30 60% 55%;
+    --chart-4: 120 45% 50%;
+    --chart-5: 340 55% 60%;
+
+    --radius: 0.5rem;
+
+    --sidebar: 250 25% 93%;
+    --sidebar-foreground: 250 20% 18%;
+    --sidebar-primary: 200 70% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 45% 55%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 250 20% 82%;
+    --sidebar-ring: 200 70% 50%;
+  }
+
+  .dark {
+    --background: 250 20% 8%;
+    --foreground: 0 0% 95%;
+
+    --card: 250 20% 12%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 250 20% 8%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 200 80% 70%;
+    --primary-foreground: 250 20% 8%;
+
+    --secondary: 270 60% 50%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 250 20% 30%;
+    --muted-foreground: 250 10% 70%;
+
+    --accent: 200 80% 70%;
+    --accent-foreground: 250 20% 8%;
+
+    --destructive: 25 80% 50%;
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 250 20% 20%;
+    --input: 250 20% 15%;
+    --ring: 200 80% 70%;
+
+    --chart-1: 200 80% 70%;
+    --chart-2: 270 60% 50%;
+    --chart-3: 30 65% 60%;
+    --chart-4: 120 55% 65%;
+    --chart-5: 340 60% 75%;
+
+    --sidebar: 250 20% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 200 80% 70%;
+    --sidebar-primary-foreground: 250 20% 8%;
+    --sidebar-accent: 270 60% 50%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 250 20% 20%;
+    --sidebar-ring: 200 80% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 0px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.8);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* Add these styles to your globals.css file */
+.quill-editor-wrapper {
+  height: 100%;
+}
+
+.quill-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.quill-editor .ql-container {
+  flex: 1;
+  overflow: auto;
+}
+
+.quill-editor .ql-editor {
+  min-height: 100px;
+}
+
+
+/* Prevent focus outline issues */
+.quill-editor .ql-editor:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure the editor doesn't lose focus on click */
+.quill-editor .ql-editor {
+  caret-color: currentColor;
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hexagon-mask {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  /* Greditnet utility classes */
+  .greditnet-text {
+    color: hsl(var(--greditnet));
+  }
+
+  .greditnet-bg {
+    background-color: hsl(var(--greditnet) / 0.12);
+  }
+
+  .greditnet-icon {
+    color: hsl(var(--greditnet));
+  }
+
+  .greditnet-hover:hover {
+    border-color: hsl(var(--greditnet) / 0.6);
+    box-shadow: 0 8px 30px hsl(var(--greditnet) / 0.12);
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .avatar {
+    @apply relative inline-flex;
+  }
+
+  .avatar>div {
+    @apply block aspect-square overflow-hidden;
+  }
+
+  .avatar img {
+    @apply h-full w-full object-cover;
+  }
+
+  .mask {
+    @apply inline-block;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+  }
+
+  .mask-hexagon {
+    mask-image: url("data:image/svg+xml,%3csvg width='182' height='201' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M.3 65.486c0-9.196 6.687-20.063 14.211-25.078l61.86-35.946c8.36-5.016 20.899-5.016 29.258 0l61.86 35.946c8.36 5.015 14.211 15.882 14.211 25.078v71.055c0 9.196-6.687 20.063-14.211 25.079l-61.86 35.945c-8.36 4.18-20.899 4.18-29.258 0L14.51 161.62C6.151 157.44.3 145.737.3 136.54V65.486Z' fill='black' fill-rule='nonzero'/%3e%3c/svg%3e");
+    transform: rotate(90deg);
+  }
+
+  @keyframes fall {
+    0% {
+      transform: translateY(-10%) rotate(0deg);
+    }
+
+    100% {
+      transform: translateY(110vh) rotate(360deg);
+    }
+  }
+
+  .animate-fall {
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+}
