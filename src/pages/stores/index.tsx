@@ -67,6 +67,10 @@ import CreateQrCodeModal from "~/components/modal/create-qr-modal"
 import CreatorStoredAssetModal from "~/components/modal/creator-stored-asset-modal"
 import NftCreateModal from "~/components/modal/nft-create-modal"
 import SellPageAssetModal from "~/components/modal/sell-page-asset-modal"
+import { getCookie } from "cookies-next"
+import { cn } from "~/lib/utils"
+
+const LAYOUT_MODE_COOKIE = "beam-layout-mode"
 // Define our types
 type MainCategory = "STORED" | "QR" | "PAGE ASSET"
 
@@ -91,6 +95,15 @@ interface SellPageAsset {
 }
 
 export default function StoredItemsView() {
+    const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern")
+
+    useEffect(() => {
+        const storedMode = getCookie(LAYOUT_MODE_COOKIE)
+        if (storedMode === "legacy" || storedMode === "modern") {
+            setLayoutMode(storedMode)
+        }
+    }, [])
+
     const [activeTab, setActiveTab] = useState<MainCategory>("STORED")
     const { setIsOpen: setIsOpenNFTModal } = useNFTCreateModalStore()
     const { setIsOpen: setIsOpenSellPageAssetModal } = useSellPageAssetStore()
@@ -212,10 +225,17 @@ export default function StoredItemsView() {
 
     return (
 
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between w-full">
+        <Card className={cn(
+        layoutMode === "modern" 
+            ? "mx-auto rounded-none border-0 bg-transparent shadow-none md:w-[85vw]" 
+            : ""
+    )}>
+            <CardHeader className={cn(
+        "flex flex-row items-center justify-between w-full",
+        layoutMode === "modern" ? "border-b-0 bg-transparent px-3 pb-3 pt-4 md:px-6 md:pt-5" : ""
+    )}>
                 <div className="flex items-center justify-between w-full">
-                    <h2 className="text-4xl font-semibold text-center">Stores</h2>
+                    <h2 className={cn("text-4xl font-semibold text-center", layoutMode === "modern" ? "text-foreground" : "")}>Stores</h2>
                     <div className="hidden md:flex items-center gap-2">
                         {actions.map((action) => {
                             const Icon = action.icon
@@ -250,28 +270,62 @@ export default function StoredItemsView() {
                     </DropdownMenu>
                 </div>
             </CardHeader>
-            <CardContent className="overflow-y-auto  scrollbar-hide  h-[calc(100vh-10vh)]">
+            <CardContent className={cn(
+        "overflow-y-auto scrollbar-hide",
+        layoutMode === "modern" ? "h-[calc(100vh-20vh)] pb-6 pt-4" : "h-[calc(100vh-10vh)]"
+    )}>
                 <Tabs
                     defaultValue="STORED"
                     value={activeTab}
                     onValueChange={(value) => setActiveTab(value as MainCategory)}
                     className="w-full"
                 >
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="STORED" className="flex items-center gap-2">
-                            <ImageIcon className="h-4 w-4" />
-                            Store Items
-                        </TabsTrigger>
-                        {/* <TabsTrigger value="QR" className="flex items-center gap-2">
-                            <QrCode className="h-4 w-4" />
-                            QR
-                        </TabsTrigger> */}
-
-                        <TabsTrigger value="PageAsset" className="flex items-center gap-2">
-                            <Coins className="h-4 w-4" />
-                            Page Assets
-                        </TabsTrigger>
-                    </TabsList>
+                    {layoutMode === "modern" ? (
+                        <div className="relative mx-auto mb-6 w-fit overflow-hidden rounded-[0.9rem] border border-black/15 p-[0.3rem] shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+                            <div className="pointer-events-none absolute inset-0 z-0 rounded-[0.9rem] bg-[radial-gradient(circle_at_20%_20%,rgba(255,251,242,0.24),rgba(248,243,232,0.08)_55%,rgba(245,240,230,0.03)_100%)] backdrop-blur-[8px]" />
+                            <div className="relative z-10 inline-flex items-center gap-0.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab("STORED")}
+                                    className={cn(
+                                        "inline-flex items-center justify-center gap-1.5 rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                                        activeTab === "STORED"
+                                            ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                                            : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                                    )}
+                                >
+                                    <ImageIcon className={cn("h-3.5 w-3.5", activeTab === "STORED" ? "text-black/80" : "text-black/50")} />
+                                    <span>Store Items</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab("PageAsset")}
+                                    className={cn(
+                                        "inline-flex items-center justify-center gap-1.5 rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                                        activeTab === "PageAsset"
+                                            ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                                            : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                                    )}
+                                >
+                                    <Coins className={cn("h-3.5 w-3.5", activeTab === "PageAsset" ? "text-black/80" : "text-black/50")} />
+                                    <span>Page Assets</span>
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="STORED" className="flex items-center gap-2">
+                                <ImageIcon className="h-4 w-4" />
+                                Store Items
+                            </TabsTrigger>
+                            <TabsTrigger value="PageAsset" className="flex items-center gap-2">
+                                <Coins className="h-4 w-4" />
+                                Page Assets
+                            </TabsTrigger>
+                        </TabsList>
+                    )}
 
                     {/* STORED ITEMS TAB */}
                     <TabsContent value="STORED" className="pt-4  ">
@@ -365,7 +419,13 @@ export default function StoredItemsView() {
                         </div>
 
                         {isStoredItemsLoading ? (
-                            <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4  xl:grid-cols-5" />
+                            <MoreAssetsSkeleton 
+                                className={cn(
+                                    "grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-5",
+                                    layoutMode === "modern" && "pt-4"
+                                )} 
+                                variant={layoutMode === "modern" ? "collection-modern" : undefined}
+                            />
                         ) : (
                             <AnimatePresence mode="wait">
                                 <motion.div
@@ -374,11 +434,13 @@ export default function StoredItemsView() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: 20 }}
                                     transition={{ duration: 0.2 }}
-                                    className={
+                                    className={cn(
                                         storedViewMode === "grid"
-                                            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                                            ? layoutMode === "modern"
+                                                ? "grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-5"
+                                                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                                             : "flex flex-col gap-4"
-                                    }
+                                    )}
                                 >
                                     {getFilteredStoredItems().length > 0 ? (
                                         <>
@@ -405,7 +467,7 @@ export default function StoredItemsView() {
                                                                 price={item.price}
                                                                 priceInUSD={item.priceUSD}
                                                                 mediaType={item.asset.mediaType}
-
+                                                                modernVariant={layoutMode === "modern" ? "collection" : undefined}
                                                             />
                                                         </div>
                                                     ) : (

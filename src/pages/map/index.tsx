@@ -236,7 +236,7 @@ function CreatorMapDashboardContent() {
         </Map>
       </div>
       <Link href="/map/collection-report">
-        <Button className="absolute bottom-32 right-6">
+        <Button className="absolute bottom-24 right-6">
           <ClipboardList className="mr-2 h-4 w-4" /> Collection Reports
         </Button>
       </Link>

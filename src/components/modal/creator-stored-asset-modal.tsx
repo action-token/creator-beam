@@ -2,12 +2,13 @@ import { motion } from "framer-motion";
 import { ArrowLeft, CreditCard, DollarSign, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button } from "~/components/shadcn/ui/button";
 import { Dialog, DialogContent } from "~/components/shadcn/ui/dialog";
 import { api } from "~/utils/api";
+import { getCookie } from "cookies-next";
 
 import { Badge } from "~/components/shadcn/ui/badge";
 import { Input } from "~/components/shadcn/ui/input";
@@ -30,19 +31,28 @@ import { MarketAssetType, useModal } from "~/lib/state/augmented-reality/use-mod
 import { Label } from "../shadcn/ui/label";
 import ShowThreeDModel from "../3d-model/model-show";
 import { useCreatorStoredAssetModalStore } from "../store/creator-stored-asset-modal-store";
-import { Separator } from "@radix-ui/react-select";
+import { cn } from "~/lib/utils";
+
+const LAYOUT_MODE_COOKIE = "beam-layout-mode";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 
 export default function CreatorStoredAssetModal() {
-
     const [step, setStep] = useState(1);
+    const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
     const { setIsOpen, isOpen, data } = useCreatorStoredAssetModalStore()
     const handleClose = () => {
         setStep(1);
         setIsOpen(false);
     };
+
+    useEffect(() => {
+        const storedMode = getCookie(LAYOUT_MODE_COOKIE);
+        if (storedMode === "legacy" || storedMode === "modern") {
+            setLayoutMode(storedMode);
+        }
+    }, []);
 
     const handleNext = () => {
         setStep((prev) => prev + 1);
@@ -61,19 +71,35 @@ export default function CreatorStoredAssetModal() {
         }
     );
 
-    if (data && data.asset)
-        return (
+    const isModernLayout = layoutMode === "modern"
+
+    if (data && data.asset) return (
             <>
                 <Dialog open={isOpen} onOpenChange={handleClose}>
-                    <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:rounded-full [&>button]:border [&>button]:border-black [&>button]:bg-white [&>button]:text-black ">
+                    <DialogContent className={cn(
+                        "overflow-hidden p-0 [&>button]:rounded-full",
+                        isModernLayout
+                            ? "max-h-[90vh] max-w-6xl border-0 bg-[#fbfaf6] shadow-[0_24px_80px_rgba(15,23,42,0.18)]"
+                            : "max-w-3xl border border-black bg-white [&>button]:border-black [&>button]:bg-white [&>button]:text-black"
+                    )}>
                         {step === 1 && (
-                            <div className="grid grid-cols-2 md:grid-cols-7">
+                            <div className={cn(
+                                "flex flex-col overflow-hidden md:flex-row",
+                                isModernLayout ? "h-[90vh] max-h-[90vh]" : ""
+                            )}>
                                 {/* Left Column - Product Image */}
-                                <Card className="  max-h-[800px]  overflow-y-auto   bg-[#1e1f22] md:col-span-3 ">
+                                <Card className={cn(
+                                    "max-h-[800px] overflow-y-auto md:col-span-3",
+                                    isModernLayout
+                                        ? "border-black/8 border-b bg-[#f1eee6] md:w-[42%] md:h-full md:min-h-[720px] md:border-b-0 md:border-r"
+                                        : "bg-[#1e1f22]"
+                                )}>
                                     <CardContent className="p-0">
                                         {/* Image Container */}
-                                        <div className="relative aspect-square bg-[#1e1f22]">
-
+                                        <div className={cn(
+                                            "relative aspect-square",
+                                            isModernLayout ? "bg-[#d8c7bb]" : "bg-[#1e1f22]"
+                                        )}>
                                             <Image
                                                 src={data.asset.thumbnail}
                                                 alt={data.asset.name}
@@ -85,23 +111,35 @@ export default function CreatorStoredAssetModal() {
 
                                         {/* Content */}
                                         <div className="space-y-3 p-4">
-                                            <h2 className="text-xl font-bold text-white">
+                                            <h2 className={cn(
+                                                "text-xl font-bold",
+                                                isModernLayout ? "text-black/90" : "text-white"
+                                            )}>
                                                 {data.asset.name}
                                             </h2>
 
-                                            <p className="max-h-[100px] min-h-[100px]  overflow-y-auto text-sm text-gray-400">
+                                            <p className={cn(
+                                                "max-h-[100px] min-h-[100px] overflow-y-auto text-sm",
+                                                isModernLayout ? "text-black/55" : "text-gray-400"
+                                            )}>
                                                 {data.asset.description}
                                             </p>
 
-                                            <div className="flex items-center gap-2 text-sm text-gray-400">
-                                                <span className="h-auto p-0 text-xs text-[#00a8fc]">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className={cn(
+                                                    "h-auto p-0 text-xs",
+                                                    isModernLayout ? "text-[#00a8fc]" : "text-[#00a8fc]"
+                                                )}>
                                                     {addrShort(data.asset.issuer, 5)}
                                                 </span>
                                                 <Badge variant="destructive" className=" rounded-lg">
                                                     #{data.asset.code}
                                                 </Badge>
                                             </div>
-                                            <p className="font-semibold text-white">
+                                            <p className={cn(
+                                                "font-semibold",
+                                                isModernLayout ? "text-black/90" : "text-white"
+                                            )}>
                                                 <span className="">Available:</span>{" "}
                                                 {copy.data === 0
                                                     ? "Sold out"
@@ -111,8 +149,11 @@ export default function CreatorStoredAssetModal() {
                                                             ? `${copy.data} copies`
                                                             : "..."}
                                             </p>
-                                            <div className="flex items-center gap-2 text-sm text-gray-400">
-                                                <span className="h-auto p-0 text-xs text-[#00a8fc]">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className={cn(
+                                                    "h-auto p-0 text-xs",
+                                                    isModernLayout ? "text-black/55" : "text-gray-400"
+                                                )}>
                                                     Media Type:
                                                 </span>
                                                 <Badge variant="destructive" className=" rounded-lg">
@@ -135,7 +176,10 @@ export default function CreatorStoredAssetModal() {
                                 </Card>
 
                                 {/* Right Column - Bundle Info */}
-                                <div className=" rounded-sm bg-gray-300 p-1   md:col-span-4">
+                                <div className={cn(
+                                    "rounded-sm p-1 md:col-span-4 w-full",
+                                    isModernLayout ? "bg-[#f3f1ee]" : "bg-gray-300"
+                                )}>
                                     {data.asset.mediaType === "IMAGE" ? (
                                         <Image
                                             src={data.asset.mediaUrl}

@@ -4,6 +4,7 @@
 import type React from "react"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { api } from "~/utils/api"
+import { getCookie } from "cookies-next"
 import {
     Send,
     Loader2,
@@ -520,11 +521,21 @@ function ConfirmReview({
 // ─── Main AgentChat ───────────────────────────────────────────────────────────
 
 export default function AgentChat() {
+    const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern")
     const [isOpen, setIsOpen] = useState(false)
     const [isMinimized, setIsMinimized] = useState(false)
     const [messages, setMessages] = useState<Message[]>([WELCOME])
     const [input, setInput] = useState("")
     const [agentState, setAgentState] = useState<AgentState>(INITIAL_STATE)
+
+    useEffect(() => {
+        const storedMode = getCookie("beam-layout-mode")
+        if (storedMode === "legacy" || storedMode === "modern") {
+            setLayoutMode(storedMode)
+        }
+    }, [])
+
+    const isModernLayout = layoutMode === "modern"
 
     const endRef = useRef<HTMLDivElement>(null)
     const chatMutation = api.agent.chat.useMutation()
@@ -841,7 +852,7 @@ export default function AgentChat() {
                         setIsMinimized(false)
                         setIsOpen(true)
                     }}
-                    className="fixed bottom-12 left-1/2 z-40 -translate-x-1/2 translate-y-1/2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95"
+                    className="fixed bottom-8 left-1/2 z-40 -translate-x-1/2 translate-y-1/2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95"
                 >
                     BEAM Assistant
                 </button>
@@ -849,7 +860,7 @@ export default function AgentChat() {
 
             {/* Neon input bar */}
             {!isMinimized && (
-                <div className="fixed bottom-6 left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4">
+                <div className={`fixed left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 ${isModernLayout ? "bottom-36" : "bottom-6"}`}>
                     <style>{`
             @keyframes neon-glow {
               0%, 100% { box-shadow: 0 0 5px rgba(34,197,94,.3), 0 0 10px rgba(34,197,94,.2); }

@@ -43,7 +43,7 @@ export function MapHeader({
     const { setData: setSelectedCreator, data: selectedCreator } = useSelectCreatorStore()
 
     return (
-        <div className="absolute top-0 left-0 right-0 z-30 p-4">
+        <div className="absolute top-3 left-0 right-0 z-30 p-4">
             <div className="mx-auto max-w-4xl">
                 <div className="flex items-center justify-between gap-4">
 
