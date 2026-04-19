@@ -23,6 +23,9 @@ import {
     Loader2,
     Palette,
     Info,
+    Sparkles,
+    LayoutGrid,
+    Plus,
 } from "lucide-react";
 import { Button } from "~/components/shadcn/ui/button";
 import { Input } from "~/components/shadcn/ui/input";
@@ -43,10 +46,22 @@ import {
 } from "~/components/shadcn/ui/dropdown-menu";
 import { Preset, PresetSidebar } from "~/components/common/preset-sidebar";
 import BeamLayout from "~/components/layout/beam-layout";
+import { getCookie } from "cookies-next";
+
+const LAYOUT_MODE_COOKIE = "beam-layout-mode";
 
 export function BeamHomePageClient() {
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+
+    useEffect(() => {
+        const storedMode = getCookie(LAYOUT_MODE_COOKIE);
+        if (storedMode === "legacy" || storedMode === "modern") {
+            setLayoutMode(storedMode);
+        }
+    }, []);
 
     const [showForm, setShowForm] = useState(false);
     const [activeSection, setActiveSection] = useState<
@@ -191,6 +206,103 @@ export function BeamHomePageClient() {
     const handleCreateBeam = () => {
         router.push("/beam/create");
     };
+
+    if (layoutMode === "modern") {
+        return (
+            <div className="relative flex h-[calc(100vh-10.8vh)] w-full flex-col gap-4 overflow-y-auto px-3 pt-4 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-2xl font-bold text-foreground">BEAM Messages</h1>
+                    <Button
+                        onClick={() => router.push("/beam/create")}
+                        className="gap-2 bg-gradient-to-r from-cyan-600 to-blue-600"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Create Beam
+                    </Button>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <button
+                        onClick={() => router.push("/beam/create")}
+                        className="flex h-48 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-primary/30 bg-background/50 p-4 text-center transition-all hover:border-primary/50 hover:bg-accent/50"
+                    >
+                        <div className="rounded-full bg-primary/10 p-3">
+                            <Plus className="h-6 w-6 text-primary" />
+                        </div>
+                        <span className="font-medium text-primary">Create New Beam</span>
+                    </button>
+
+                    <button
+                        onClick={() => router.push("/beam/create")}
+                        className="group relative flex h-48 flex-col rounded-xl border border-border/50 bg-gradient-to-br from-cyan-900/20 to-blue-900/20 p-4 text-left transition-all hover:border-cyan-500/30 hover:scale-[1.02]"
+                    >
+                        <div className="mb-3 flex items-start justify-between">
+                            <div className="text-3xl">📧</div>
+                            <span className="rounded-full bg-cyan-500/20 px-2 py-1 text-xs text-cyan-300">
+                                AR/QR
+                            </span>
+                        </div>
+                        <h3 className="mb-1 text-lg font-bold text-foreground group-hover:text-cyan-400">
+                            BEAM Messages
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                            Send personalized messages with AR experiences
+                        </p>
+                    </button>
+
+                    <button
+                        onClick={() => router.push("/beam/create")}
+                        className="group relative flex h-48 flex-col rounded-xl border border-border/50 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 p-4 text-left transition-all hover:border-purple-500/30 hover:scale-[1.02]"
+                    >
+                        <div className="mb-3 flex items-start justify-between">
+                            <div className="text-3xl">🤖</div>
+                            <span className="rounded-full bg-purple-500/20 px-2 py-1 text-xs text-purple-300">
+                                AI
+                            </span>
+                        </div>
+                        <h3 className="mb-1 text-lg font-bold text-foreground group-hover:text-purple-400">
+                            BEAM Studio
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                            Generate AI-powered images
+                        </p>
+                    </button>
+
+                    <button
+                        onClick={() => router.push("/beam/gallery")}
+                        className="group relative flex h-48 flex-col rounded-xl border border-border/50 bg-gradient-to-br from-green-900/20 to-emerald-900/20 p-4 text-left transition-all hover:border-green-500/30 hover:scale-[1.02]"
+                    >
+                        <div className="mb-3 flex items-start justify-between">
+                            <div className="text-3xl">🖼️</div>
+                            <span className="rounded-full bg-green-500/20 px-2 py-1 text-xs text-green-300">
+                                Gallery
+                            </span>
+                        </div>
+                        <h3 className="mb-1 text-lg font-bold text-foreground group-hover:text-green-400">
+                            My Gallery
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                            View your created beams
+                        </p>
+                    </button>
+                </div>
+
+                <div className="mt-6">
+                    <h2 className="mb-4 text-xl font-semibold text-foreground">Recent Messages</h2>
+                    <div className="rounded-xl border border-border/50 bg-card p-8 text-center">
+                        <p className="text-muted-foreground">No messages yet. Create your first BEAM!</p>
+                        <Button
+                            onClick={() => router.push("/beam/create")}
+                            className="mt-4 gap-2"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Create Message
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <BeamLayout>

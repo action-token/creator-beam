@@ -1,27 +1,38 @@
-"use client"
-import { useState } from "react"
-import { motion } from "framer-motion"
+"use client";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-import { ChevronLeft, LogOut, Sun, Moon, ChevronRight } from "lucide-react"
+import {
+  ChevronLeft,
+  LogOut,
+  Sun,
+  Moon,
+  ChevronRight,
+  ArrowLeftRight,
+} from "lucide-react";
 
-import { useSidebar } from "~/hooks/use-sidebar"
+import { useSidebar } from "~/hooks/use-sidebar";
 
-import { DashboardNav } from "./dashboard-nav"
-import { ConnectWalletButton } from "package/connect_wallet"
+import { DashboardNav } from "./dashboard-nav";
+import { ConnectWalletButton } from "package/connect_wallet";
 
-import { useTheme } from "next-themes"
-import Link from "next/link"
-import { HomeIcon } from "lucide-react"
-import Image from "next/image"
-import { cn } from "~/utils/utils"
-import { Button } from "~/components/shadcn/ui/button"
-import { signOut, useSession } from "next-auth/react"
-import { useRouter } from "next/router"
-import { FaFacebook, FaInstagram, FaLinkedinIn } from "react-icons/fa"
-import { NavItem } from "~/types/icon-types"
+import { useTheme } from "next-themes";
+import Link from "next/link";
+import { HomeIcon } from "lucide-react";
+import Image from "next/image";
+import { cn } from "~/utils/utils";
+import { Button } from "~/components/shadcn/ui/button";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { FaFacebook, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+import { NavItem } from "~/types/icon-types";
+
+export type LayoutMode = "modern" | "legacy";
 
 interface SidebarProps {
-  className?: string
+  className?: string;
+  layoutMode?: LayoutMode;
+  onToggleLayoutMode?: () => void;
 }
 
 export const LeftNavigation: NavItem[] = [
@@ -33,58 +44,57 @@ export const LeftNavigation: NavItem[] = [
   { href: "/creator/home", icon: "creator", title: "CREATORS" },
   // { href: "/beam", icon: "scan", title: "Beam" },
   { href: "/settings", icon: "setting", title: "SETTINGS" },
-
-]
+];
 
 export const BeamNavigation: NavItem[] = [
   { href: "/", icon: "back", title: "BACK" },
   { href: "/beam", icon: "home", title: "HOME" },
   { href: "/beam/create", icon: "create", title: "CREATE" },
   { href: "/beam/gallery", icon: "gallery", title: "GALLERY" },
-]
+];
 
 export const BottomNavigation = {
   Home: { path: "/maps/pins", icon: HomeIcon, text: "CLAIM" },
-} as const
+} as const;
 
 // Mini Calendar component that only shows current and next week
 const MiniCalendar = () => {
-  const today = new Date()
-  const [currentDate, setCurrentDate] = useState(today)
-  const [selectedDate, setSelectedDate] = useState(today)
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(today);
 
   // Get the current week's start (Sunday) and calculate days
   const getWeekDays = (date: Date) => {
-    const day = date.getDay() // 0 is Sunday, 6 is Saturday
-    const diff = date.getDate() - day
-    const weekStart = new Date(date)
-    weekStart.setDate(diff)
+    const day = date.getDay(); // 0 is Sunday, 6 is Saturday
+    const diff = date.getDate() - day;
+    const weekStart = new Date(date);
+    weekStart.setDate(diff);
 
-    const days = []
+    const days = [];
     for (let i = 0; i < 7; i++) {
-      const newDate = new Date(weekStart)
-      newDate.setDate(weekStart.getDate() + i)
-      days.push(newDate)
+      const newDate = new Date(weekStart);
+      newDate.setDate(weekStart.getDate() + i);
+      days.push(newDate);
     }
-    return days
-  }
+    return days;
+  };
 
-  const currentWeek = getWeekDays(currentDate)
+  const currentWeek = getWeekDays(currentDate);
   const nextWeek = currentWeek.map((day) => {
-    const newDate = new Date(day)
-    newDate.setDate(day.getDate() + 7)
-    return newDate
-  })
+    const newDate = new Date(day);
+    newDate.setDate(day.getDate() + 7);
+    return newDate;
+  });
 
-  const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+  const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
   const isToday = (date: Date) => {
-    return date.toDateString() === today.toDateString()
-  }
+    return date.toDateString() === today.toDateString();
+  };
 
   const isSelected = (date: Date) => {
-    return date.toDateString() === selectedDate.toDateString()
-  }
+    return date.toDateString() === selectedDate.toDateString();
+  };
 
   const monthNames = [
     "January",
@@ -99,54 +109,68 @@ const MiniCalendar = () => {
     "October",
     "November",
     "December",
-  ]
+  ];
 
   // Navigate weeks
   const goToPreviousWeek = () => {
-    const prevDate = new Date(currentDate)
-    prevDate.setDate(currentDate.getDate() - 7)
-    setCurrentDate(prevDate)
-  }
+    const prevDate = new Date(currentDate);
+    prevDate.setDate(currentDate.getDate() - 7);
+    setCurrentDate(prevDate);
+  };
 
   const goToNextWeek = () => {
-    const nextDate = new Date(currentDate)
-    nextDate.setDate(currentDate.getDate() + 7)
-    setCurrentDate(nextDate)
-  }
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(currentDate.getDate() + 7);
+    setCurrentDate(nextDate);
+  };
 
   return (
-    <div className="w-full rounded-lg p-2 border  shadow-sm ">
-      <div className="flex items-center justify-between mb-2">
-        <button onClick={goToPreviousWeek} className="p-1 hover:bg-muted rounded-full">
+    <div className="w-full rounded-lg border p-2  shadow-sm ">
+      <div className="mb-2 flex items-center justify-between">
+        <button
+          onClick={goToPreviousWeek}
+          className="rounded-full p-1 hover:bg-muted"
+        >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <span className="text-xs font-medium">
-          {currentWeek[0] && `${monthNames[currentWeek[0].getMonth()]} ${currentWeek[0].getFullYear()}`}
+          {currentWeek[0] &&
+            `${monthNames[currentWeek[0].getMonth()]} ${currentWeek[0].getFullYear()}`}
         </span>
-        <button onClick={goToNextWeek} className="p-1 hover:bg-muted rounded-full">
+        <button
+          onClick={goToNextWeek}
+          className="rounded-full p-1 hover:bg-muted"
+        >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
       {/* Day names */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="mb-1 grid grid-cols-7 gap-1">
         {dayNames.map((day, i) => (
-          <div key={`header-${i}`} className="text-center text-xs text-muted-foreground">
+          <div
+            key={`header-${i}`}
+            className="text-center text-xs text-muted-foreground"
+          >
             {day}
           </div>
         ))}
       </div>
 
       {/* Current week */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="mb-1 grid grid-cols-7 gap-1">
         {currentWeek.map((date, i) => (
           <button
             key={`current-${i}`}
             onClick={() => setSelectedDate(date)}
             className={cn(
-              "h-6 w-6 rounded-full text-xs flex items-center justify-center",
-              isToday(date) ? "bg-primary text-primary-foreground font-bold" : "",
-              isSelected(date) && !isToday(date) ? "bg-accent text-accent-foreground" : "",
+              "flex h-6 w-6 items-center justify-center rounded-full text-xs",
+              isToday(date)
+                ? "bg-primary font-bold text-primary-foreground"
+                : "",
+              isSelected(date) && !isToday(date)
+                ? "bg-accent text-accent-foreground"
+                : "",
               !isToday(date) && !isSelected(date) ? "hover:bg-muted" : "",
             )}
           >
@@ -162,9 +186,13 @@ const MiniCalendar = () => {
             key={`next-${i}`}
             onClick={() => setSelectedDate(date)}
             className={cn(
-              "h-6 w-6 rounded-full text-xs flex items-center justify-center",
-              isToday(date) ? "bg-primary text-primary-foreground font-bold" : "",
-              isSelected(date) && !isToday(date) ? "bg-accent text-accent-foreground" : "",
+              "flex h-6 w-6 items-center justify-center rounded-full text-xs",
+              isToday(date)
+                ? "bg-primary font-bold text-primary-foreground"
+                : "",
+              isSelected(date) && !isToday(date)
+                ? "bg-accent text-accent-foreground"
+                : "",
               !isToday(date) && !isSelected(date) ? "hover:bg-muted" : "",
             )}
           >
@@ -173,49 +201,56 @@ const MiniCalendar = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default function Sidebar({ className }: SidebarProps) {
-  const { isMinimized, toggle } = useSidebar()
-  const session = useSession()
-  const router = useRouter()
+export default function Sidebar({
+  className,
+  layoutMode,
+  onToggleLayoutMode,
+}: SidebarProps) {
+  const { isMinimized, toggle } = useSidebar();
+  const session = useSession();
+  const router = useRouter();
 
-
-  const navigationItems = LeftNavigation
+  const navigationItems = LeftNavigation;
 
   return (
     <div
       className={cn(
-        `sticky p-1 w-full  overflow-hidden border-r  hidden md:block transition-all duration-500 ease-in-out`,
+        `sticky hidden w-full  overflow-hidden border-r  p-1 transition-all duration-500 ease-in-out md:block`,
         !isMinimized ? "w-[280px]" : "w-[78px]",
         "top-[5.8rem] h-[calc(100vh-10.8vh)]",
         className,
       )}
     >
-      <div className=" flex  h-full   w-full  flex-col items-center justify-between   gap-1   no-scrollbar  ">
+      <div className=" no-scrollbar  flex   h-full  w-full flex-col items-center   justify-between   gap-1  ">
         <div className="flex w-full flex-col items-center justify-between p-1">
-
-          <div className="flex w-full  overflow-x-hidden flex-col justify-between h-full">
+          <div className="flex h-full  w-full flex-col justify-between overflow-x-hidden">
             <DashboardNav items={navigationItems} />
-
-
           </div>
         </div>
 
         <div
           className={cn(
             "flex w-full flex-col items-center transition-all duration-500 ease-in-out",
-            isMinimized ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 max-h-[1000px]",
+            isMinimized
+              ? "max-h-0 overflow-hidden opacity-0"
+              : "max-h-[1000px] opacity-100",
           )}
         >
-          <LeftBottom />
+          <LeftBottom
+            layoutMode={layoutMode}
+            onToggleLayoutMode={onToggleLayoutMode}
+          />
         </div>
         {isMinimized && session.status == "authenticated" && (
           <div
             className={cn(
               "transition-all duration-500 ease-in-out",
-              isMinimized ? "opacity-100 max-h-20" : "opacity-0 max-h-0 overflow-hidden",
+              isMinimized
+                ? "max-h-20 opacity-100"
+                : "max-h-0 overflow-hidden opacity-0",
             )}
           >
             <LogOutButon />
@@ -223,32 +258,41 @@ export default function Sidebar({ className }: SidebarProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function LogOutButon() {
   async function disconnectWallet() {
     await signOut({
       redirect: false,
-    })
+    });
   }
   return (
-    <Button className="flex flex-col p-3 shadow-sm shadow-black" onClick={disconnectWallet}>
+    <Button
+      className="flex flex-col p-3 shadow-sm shadow-black"
+      onClick={disconnectWallet}
+    >
       <span>
         {" "}
         <LogOut />
       </span>
       <span className="text-xs">Logout</span>
     </Button>
-  )
+  );
 }
 
-export function LeftBottom() {
-  const { setTheme, theme } = useTheme()
+export function LeftBottom({
+  layoutMode,
+  onToggleLayoutMode,
+}: {
+  layoutMode?: LayoutMode;
+  onToggleLayoutMode?: () => void;
+}) {
+  const { setTheme, theme } = useTheme();
   const tougleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
-  }
-  const [date, setDate] = useState<Date | undefined>(new Date())
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   return (
     <div className="flex w-full flex-col justify-center gap-4 p-1">
@@ -265,7 +309,7 @@ export function LeftBottom() {
           }}
         >
           <motion.div
-            className="absolute top-1 left-1 right-1 bottom-1 rounded-full bg-gradient-to-br"
+            className="absolute bottom-1 left-1 right-1 top-1 rounded-full bg-gradient-to-br"
             animate={{
               background:
                 theme === "dark"
@@ -275,7 +319,7 @@ export function LeftBottom() {
             transition={{ duration: 0.5 }}
           />
           <motion.div
-            className="absolute   h-8 w-8 top-1 rounded-full "
+            className="absolute   top-1 h-8 w-8 rounded-full "
             animate={{
               x: theme === "dark" ? 45 : 4,
               background: theme === "dark" ? "#f1c40f" : "#ffffff",
@@ -302,34 +346,43 @@ export function LeftBottom() {
           />
         </button>
       </div>
-      <div className="w-full flex items-center justify-center ">
+      <div className="flex w-full items-center justify-center ">
         <ConnectWalletButton />
       </div>
+      {layoutMode === "legacy" && (
+        <Button
+          variant="default"
+          className="w-full"
+          onClick={onToggleLayoutMode}
+        >
+          <ArrowLeftRight className="h-4 w-4" /> Switch to Modern
+        </Button>
+      )}
 
       <div className="flex  items-center justify-between  gap-4 ">
         <Link
           href={"https://www.facebook.com/"}
-          className="btn flex h-12 shadow-sm shadow-primary  flex-col  justify-center  rounded-lg items-center  text-xs normal-case w-full"
+          className="btn flex h-12 w-full flex-col  items-center  justify-center  rounded-lg text-xs  normal-case shadow-sm shadow-primary"
           target="_blank"
         >
           <FaFacebook size={26} />
         </Link>
         <Link
           href={"https://www.linkedin.com"}
-          className="btn flex h-12 shadow-sm shadow-primary  flex-col  justify-center  rounded-lg items-center  text-xs normal-case w-full"
+          className="btn flex h-12 w-full flex-col  items-center  justify-center  rounded-lg text-xs  normal-case shadow-sm shadow-primary"
           target="_blank"
         >
           <FaLinkedinIn size={26} />
         </Link>
         <Link
           href={"https://www.instagram.com"}
-          className="btn flex h-12 shadow-sm shadow-primary flex-col justify-center  rounded-lg items-center  text-xs normal-case w-full"
+          className="btn flex h-12 w-full flex-col items-center justify-center  rounded-lg text-xs  normal-case shadow-sm shadow-primary"
           target="_blank"
         >
           <FaInstagram size={26} />
         </Link>
       </div>
-      <div className="flex w-full flex-col text-center text-xs text-base-content">
+      <div className="text-base-content flex w-full flex-col text-center text-xs">
         <p>© 2026 Beam</p>
         <div className="flex w-full justify-center gap-2 ">
           <Link className="link-hover link" href="/about">
@@ -345,5 +398,5 @@ export function LeftBottom() {
         <p>v{1.1}</p>
       </div>
     </div>
-  )
+  );
 }

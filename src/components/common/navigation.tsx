@@ -1,16 +1,20 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { ArrowLeftRight, LogOut, Settings, Shield, Sparkles, User, Wallet } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
 import Lottie from "lottie-react"
+import { getCookie, setCookie } from "cookies-next"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/shadcn/ui/avatar"
 import { Button } from "~/components/shadcn/ui/button"
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances"
 import { api } from "~/utils/api"
 import { useRouter } from "next/router"
 import { NavLinks } from "./navlinks"
+
+const LAYOUT_MODE_COOKIE = "beam-layout-mode"
 
 export function Navigation() {
   const session = useSession()
@@ -25,6 +29,25 @@ export function Navigation() {
   const creatorPermission = api.fan.creator.getPermissionData.useQuery()
 
   const isAdminMode = pathname.startsWith("/admin")
+
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern")
+
+  useEffect(() => {
+    const storedMode = getCookie(LAYOUT_MODE_COOKIE)
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode)
+    }
+  }, [])
+
+  const onToggleLayoutMode = () => {
+    const nextMode: "modern" | "legacy" = layoutMode === "legacy" ? "modern" : "legacy"
+    setLayoutMode(nextMode)
+    setCookie(LAYOUT_MODE_COOKIE, nextMode, {
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    })
+    window.location.reload()
+  }
 
   const balances = api.wallate.acc.getAccountBalance.useQuery(undefined, {
     onSuccess: (data) => {
@@ -104,6 +127,22 @@ export function Navigation() {
       <NavLinks isAdminMode={isAdminMode} creatorPermission={!!creatorPermission.data} />
 
       <div className="mt-auto border-t border-border/40 p-3">
+        {session.status === "authenticated" && layoutMode === "legacy" && (
+          <div className="mb-3">
+            <Button
+              variant="default"
+              size="sm"
+              className="w-full justify-center gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/25"
+              onClick={onToggleLayoutMode}
+            >
+              <Sparkles className="h-4 w-4 flex-shrink-0" />
+              <span className="hidden whitespace-nowrap group-hover:inline uppercase">
+                Switch to Modern
+              </span>
+            </Button>
+          </div>
+        )}
+
         {admin.data && session.status === "authenticated" && (
           <div className="mb-3">
             <Button

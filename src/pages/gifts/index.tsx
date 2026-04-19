@@ -65,6 +65,10 @@ import {
 import { Skeleton } from "~/components/shadcn/ui/skeleton";
 import CustomAvatar from "~/components/common/custom-avatar";
 import { toast as sonner } from "sonner"
+import { getCookie } from "cookies-next";
+import { cn } from "~/lib/utils";
+
+const LAYOUT_MODE_COOKIE = "beam-layout-mode";
 
 enum assetType {
   PAGEASSET = "PAGEASSET",
@@ -93,6 +97,15 @@ type selectedAssetType = {
 
 export default function GiftPage() {
   const session = useSession();
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+
+  useEffect(() => {
+    const storedMode = getCookie(LAYOUT_MODE_COOKIE);
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<selectedAssetType | null>(
     null,
@@ -262,17 +275,52 @@ export default function GiftPage() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="mb-6 grid grid-cols-2">
-              <TabsTrigger value="fans" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                <span>Your Fans</span>
-              </TabsTrigger>
-              <TabsTrigger value="gift" className="flex items-center gap-2">
-                <Gift className="h-4 w-4" />
-                <span>Send Gift</span>
-              </TabsTrigger>
-
-            </TabsList>
+            {layoutMode === "modern" ? (
+              <div className="relative mx-auto mb-6 w-fit overflow-hidden rounded-[0.9rem] border border-black/15 p-[0.3rem] shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+                <div className="pointer-events-none absolute inset-0 z-0 rounded-[0.9rem] bg-[radial-gradient(circle_at_20%_20%,rgba(255,251,242,0.24),rgba(248,243,232,0.08)_55%,rgba(245,240,230,0.03)_100%)] backdrop-blur-[8px]" />
+                <div className="relative z-10 inline-flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("fans")}
+                    className={cn(
+                      "inline-flex items-center justify-center gap-1.5 rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                      activeTab === "fans"
+                        ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                        : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                    )}
+                  >
+                    <Users className={cn("h-3.5 w-3.5", activeTab === "fans" ? "text-black/80" : "text-black/50")} />
+                    <span>Your Fans</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("gift")}
+                    className={cn(
+                      "inline-flex items-center justify-center gap-1.5 rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                      activeTab === "gift"
+                        ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                        : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                    )}
+                  >
+                    <Gift className={cn("h-3.5 w-3.5", activeTab === "gift" ? "text-black/80" : "text-black/50")} />
+                    <span>Send Gift</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <TabsList className="mb-6 grid grid-cols-2">
+                <TabsTrigger value="fans" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  <span>Your Fans</span>
+                </TabsTrigger>
+                <TabsTrigger value="gift" className="flex items-center gap-2">
+                  <Gift className="h-4 w-4" />
+                  <span>Send Gift</span>
+                </TabsTrigger>
+              </TabsList>
+            )}
 
             <TabsContent value="gift">
               <motion.div

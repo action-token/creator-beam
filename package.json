@@ -27,6 +27,7 @@
     "@hookform/resolvers": "^3.9.0",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@next/bundle-analyzer": "^14.2.5",
+    "@phosphor-icons/react": "^2.1.10",
     "@pinata/sdk": "^2.1.0",
     "@prisma/client": "^5.16.2",
     "@radix-ui/react-accordion": "^1.2.0",
