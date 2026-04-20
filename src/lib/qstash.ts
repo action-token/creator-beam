@@ -1,72 +1,81 @@
-
 import { Client } from "@upstash/qstash"
-import { Redis } from "@upstash/redis"
 import { env } from "~/env"
+import { db } from "~/server/db" // your Prisma client
 
-// Initialize QStash client for background jobs
 export const qstash = new Client({
     token: env.QSTASH_TOKEN,
 })
 
-// Initialize Redis for job status storage
-export const redis = new Redis({
-    url: env.KV_REST_API_URL,
-    token: env.KV_REST_API_TOKEN,
-})
-
-// Job status types
 export type JobStatus = "pending" | "processing" | "completed" | "failed"
 
 export interface JobData {
     jobId: string
     status: JobStatus
+    userId: string
     progress?: number
     message?: string
     error?: string
     result?: {
-        items: Array<{
-            type: string
-            url: string
-        }>
+        items: Array<{ type: string; url: string, content?: string }>
     }
     createdAt: number
     updatedAt: number
 }
 
-// Helper to generate unique job IDs
 export function generateJobId(): string {
     return `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 }
 
-// Job status helpers
 export async function createJob(jobId: string, initialData?: Partial<JobData>): Promise<JobData> {
-    const job: JobData = {
-        jobId,
-        status: "pending",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        ...initialData,
-    }
-    await redis.set(`job:${jobId}`, JSON.stringify(job), { ex: 3600 }) // 1 hour TTL
-    return job
+    const row = await db.generationJob.create({
+        data: {
+            id: jobId,
+            userId: initialData?.userId ?? "unknown",
+            status: initialData?.status ?? "pending",
+            message: initialData?.message,
+        },
+    })
+    return dbRowToJobData(row)
 }
 
 export async function updateJob(jobId: string, updates: Partial<JobData>): Promise<JobData | null> {
-    const existing = await getJob(jobId)
-    if (!existing) return null
-
-    const updated: JobData = {
-        ...existing,
-        ...updates,
-        updatedAt: Date.now(),
-    }
-    await redis.set(`job:${jobId}`, JSON.stringify(updated), { ex: 3600 })
-    return updated
+    const row = await db.generationJob.update({
+        where: { id: jobId },
+        data: {
+            status: updates.status,
+            progress: updates.progress,
+            message: updates.message,
+            error: updates.error,
+            result: updates.result ? (updates.result as object) : undefined,
+        },
+    })
+    return dbRowToJobData(row)
 }
 
 export async function getJob(jobId: string): Promise<JobData | null> {
-    const data = await redis.get(`job:${jobId}`)
-    if (!data) return null
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return typeof data === "string" ? JSON.parse(data) : data as JobData
+    const row = await db.generationJob.findUnique({ where: { id: jobId } })
+    if (!row) return null
+    return dbRowToJobData(row)
+}
+
+function dbRowToJobData(row: {
+    id: string
+    status: string
+    progress: number | null
+    message: string | null
+    error: string | null
+    result: unknown
+    createdAt: Date
+    updatedAt: Date
+}): JobData {
+    return {
+        jobId: row.id,
+        status: row.status as JobStatus,
+        progress: row.progress ?? undefined,
+        message: row.message ?? undefined,
+        error: row.error ?? undefined,
+        result: row.result as JobData["result"] ?? undefined,
+        createdAt: row.createdAt.getTime(),
+        updatedAt: row.updatedAt.getTime(),
+    }
 }
