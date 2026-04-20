@@ -21,10 +21,14 @@ import { DashboardNav } from "~/components/layout/Left-sidebar/dashboard-nav"
 import { LeftBottom, LeftNavigation } from "~/components/layout/Left-sidebar/sidebar"
 import { Skeleton } from "~/components/shadcn/ui/skeleton"
 import { useRouter } from "next/navigation"
+import { getCookie } from "cookies-next"
+
+const LAYOUT_MODE_COOKIE = "beam-layout-mode"
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [activeFeature, setActiveFeature] = useState(0)
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern")
   const router = useRouter()
   const features = [
     {
@@ -55,6 +59,11 @@ export default function Home() {
   useEffect(() => {
     setMounted(true)
 
+    const storedMode = getCookie(LAYOUT_MODE_COOKIE)
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode)
+    }
+
     // Check if user is on mobile device and redirect if so
     const handleMobileRedirect = () => {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -78,7 +87,10 @@ export default function Home() {
   if (!mounted) return <HomePageSkeleton />
 
   return (
-    <div className="flex h-[calc(100vh-11vh)] flex-col  bg-background text-foreground overflow-hidden">
+    <div className={cn(
+      "flex flex-col bg-background text-foreground overflow-hidden",
+      layoutMode === "modern" ? "fixed inset-0" : "h-[calc(100vh-11vh)]"
+    )}>
 
 
       {/* Hero Section with Video Background */}
