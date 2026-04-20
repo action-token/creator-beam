@@ -219,7 +219,7 @@ model Creator {
     backgroundSVG String?
     showSVG       Boolean @default(false)
     vanityURL     String? @unique(map: "unique_vanityurl")
-
+    extraFields   Json? // {navPermission?: true}
     storagePub    String
     storageSecret String
 
@@ -231,7 +231,6 @@ model Creator {
     pageAssetId Int?
 
     customPageAssetCodeIssuer String? // CODE-ISSUER-ASSET-USD
-    extraFields               Json? // {navPermission?: true}
     //handle
     website                   String?
     twitter                   String?
@@ -646,8 +645,6 @@ model Hotspot {
     locationGroups LocationGroup[]
 }
 
-// ------------------------Mapping SCHEMA-------------------------
-
 model LocationGroup {
     id String @id @default(cuid())
 
@@ -663,9 +660,9 @@ model LocationGroup {
     plaformAsset Boolean? @default(false)
     creatorId    String
     creator      Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-
-    limit     Int @default(0)
-    remaining Int @default(0)
+    hidden       Boolean  @default(false)
+    limit        Int      @default(0)
+    remaining    Int      @default(0)
 
     title       String
     description String?
@@ -680,27 +677,26 @@ model LocationGroup {
 
     image String?
 
-    hidden Boolean @default(false)
-    link   String?
+    link              String?
+    aiUrlDescriptions String[] @default([])
 
     multiPin Boolean @default(false)
-    type     PinType @default(OTHER) // Added new type field
+    type     PinType @default(OTHER) // EVENT, LANDMARK, BOUNTY, EXPERIENCE, LAUNCH, OTHER
 
-    locations Location[]
-
-    ActionLocation ActionLocation[]
-    hotspot        Hotspot?         @relation(fields: [hotspotId], references: [id])
-    hotspotId      String?
+    locations       Location[]
+    hotspot         Hotspot?         @relation(fields: [hotspotId], references: [id])
+    hotspotId       String?
+    actionLocations ActionLocation[]
 }
 
 model Location {
     id String @id @default(cuid())
 
-    latitude  Float
-    longitude Float
+    latitude    Float
+    longitude   Float
+    hidden      Boolean @default(false)
+    autoCollect Boolean
 
-    autoCollect     Boolean
-    hidden          Boolean        @default(false)
     locationGroupId String?
     locationGroup   LocationGroup? @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)
 
@@ -1129,4 +1125,18 @@ model LocationGroupJob {
     creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
     @@index([creatorId, createdAt])
+}
+
+model GenerationJob {
+    id        String   @id @default(cuid())
+    userId    String
+    status    String   @default("pending") // pending | processing | completed | failed
+    progress  Int?
+    message   String?
+    error     String?
+    result    Json? // stores { items: [{ type, url }] }
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
 }
