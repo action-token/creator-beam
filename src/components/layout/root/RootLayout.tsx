@@ -41,7 +41,7 @@ export default function RootLayout({
   const session = useSession();
   const adminRoute = router.pathname.startsWith("/admin");
   const { isMinimized, toggle } = useSidebar();
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>("modern");
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("legacy");
   const [hasOpenDialog, setHasOpenDialog] = useState(false);
   const isLegacyLayout = layoutMode === "legacy";
 

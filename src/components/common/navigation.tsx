@@ -30,7 +30,7 @@ export function Navigation() {
 
   const isAdminMode = pathname.startsWith("/admin")
 
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern")
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy")
 
   useEffect(() => {
     const storedMode = getCookie(LAYOUT_MODE_COOKIE)
