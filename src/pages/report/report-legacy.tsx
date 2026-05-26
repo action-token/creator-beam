@@ -341,7 +341,7 @@ function CreatorCollectionReportLegacy() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge variant="secondary">
+                            <Badge variant="secondary" className="text-foreground">
                               {pin.consumerCount} consumers
                             </Badge>
                           </div>
@@ -984,14 +984,14 @@ export function TableData({
         </div>
       )}
 
-      <div className="relative overflow-hidden rounded-md border">
+      <div className="relative overflow-hidden border-y">
         {isRefetching && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         )}
 
-        <Table>
+        <Table className="rounded-none">
           <TableHeader>
             <TableRow className="bg-muted/50">
               {visibleColumns.creatorId && (
@@ -1292,7 +1292,7 @@ export function TableData({
         </Table>
       </div>
 
-      <div className="mt-2 px-6 text-xs text-muted-foreground">
+      <div className="mt-2 px-6 text-xs text-muted-foreground pb-3">
         Showing {filteredPins.length} items
         {selectedDays ? ` (filtered to last ${selectedDays} days)` : ""}
         {sortConfig &&

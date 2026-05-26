@@ -363,7 +363,7 @@ const CreatorCollectionReport = ({
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Badge variant="secondary">
+                                  <Badge variant="secondary" className="text-foreground">
                                     {pin.consumerCount} consumers
                                   </Badge>
                                 </div>

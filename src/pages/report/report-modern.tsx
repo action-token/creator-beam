@@ -319,7 +319,7 @@ function CreatorCollectionReportModern() {
                           <div className="flex items-center gap-2">
                             <Badge
                               variant="secondary"
-                              className="border-black/15 bg-white/60 backdrop-blur-md dark:border-white/10 dark:bg-black/40"
+                              className="border-black/15 bg-white/60 backdrop-blur-md dark:border-white/10 dark:bg-black/40 text-foreground"
                             >
                               {pin.consumerCount} consumers
                             </Badge>
