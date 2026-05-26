@@ -159,7 +159,7 @@ export default function RootLayout({
               </Card>
             </div>
           ) : (
-            <div className="w-full overflow-y-auto pb-24 scrollbar-hide md:pb-28">
+            <div className="w-full overflow-y-auto scrollbar-hide">
               {adminRoute ? (
                 <AdminLayout>{children}</AdminLayout>
               ) : (

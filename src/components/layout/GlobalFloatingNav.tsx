@@ -23,23 +23,6 @@ type NavItem = {
   path: string;
   text: string;
   icon: ComponentType<{ className?: string }>;
-  external?: boolean;
-  dashed?: boolean;
-};
-
-const sidebarIconMap: Record<string, ComponentType<{ className?: string }>> = {
-  dashboard: Map,
-  map: Map,
-  beam: QrCode,
-  bounty: Target,
-  bounties: Target,
-  gifts: Gift,
-  followers: Gift,
-  stores: Store,
-  redeem: HandCoins,
-  "pin-manage": MapPin,
-  report: BarChart3,
-  profile: User,
 };
 
 const navItems: NavItem[] = [
@@ -57,83 +40,39 @@ const navItems: NavItem[] = [
 function FloatingNavItem({
   item,
   isActive,
-  isExpanded,
+  itemWidth,
 }: {
   item: NavItem;
   isActive: boolean;
-  isExpanded: boolean;
+  itemWidth: string;
 }) {
   const Icon = item.icon;
-  const canExpand = isExpanded;
 
   const itemBody = (
     <motion.div
       className={cn(
-        "relative flex h-10 items-center overflow-hidden rounded-xl px-2.5 transition-colors md:h-12 md:px-3",
-        canExpand ? "gap-0 md:gap-2" : "gap-0",
-        "border border-black/20 text-black/85",
-        isActive && "text-black",
-        item.dashed ? "border-dashed border-black/35" : "border-solid",
-        isActive &&
-          "shadow-[0_0_0_1px_rgba(59,130,246,0.5),0_0_18px_rgba(59,130,246,0.4)]",
+        "relative flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 transition-colors",
+        itemWidth,
+        isActive ? "text-blue-600" : "text-black/85",
       )}
       transition={{ type: "spring", stiffness: 180, damping: 24, mass: 0.9 }}
     >
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-0 z-0 rounded-xl backdrop-blur-[2px]",
-          isActive ? "bg-blue-500/55" : "bg-white/75",
-        )}
-      />
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-0 z-0 rounded-xl shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.8),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.5)]",
-          isActive &&
-            "shadow-[inset_1px_1px_1px_0_rgba(219,234,254,0.98),_inset_-1px_-1px_1px_1px_rgba(191,219,254,0.8),0_0_16px_rgba(59,130,246,0.42)]",
-        )}
-      />
-
-      <div className="relative z-30 grid size-5 place-items-center md:size-6">
-        <Icon className="size-5 md:size-6" />
+      <div className="relative z-30 grid size-5 place-items-center">
+        <Icon className="size-5" />
       </div>
-
-      <motion.div
-        className="relative z-30 hidden overflow-hidden md:block"
-        initial={false}
-        animate={{ maxWidth: canExpand ? 160 : 0 }}
-        transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <motion.span
-          initial={false}
-          animate={{ opacity: canExpand ? 1 : 0, x: canExpand ? 0 : -6 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 hidden whitespace-nowrap pr-1 text-sm font-medium uppercase md:inline"
-        >
+      <div className="relative z-30 text-center">
+        <span className="relative z-10 block truncate whitespace-nowrap text-sm font-medium uppercase leading-tight">
           {item.text}
-        </motion.span>
-      </motion.div>
+        </span>
+      </div>
     </motion.div>
   );
-
-  if (item.external) {
-    return (
-      <a
-        href={item.path}
-        aria-current={isActive ? "page" : undefined}
-        className="block"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {itemBody}
-      </a>
-    );
-  }
 
   return (
     <Link
       href={item.path}
       aria-current={isActive ? "page" : undefined}
-      className="block"
+      className={cn("block", itemWidth)}
     >
       {itemBody}
     </Link>
@@ -151,27 +90,31 @@ export default function GlobalFloatingNav() {
     )?.key ?? "";
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[60] flex items-end justify-center px-2 pb-4 md:px-4 md:pb-6">
+    <div className="pointer-events-none fixed inset-0 z-[60] hidden items-end justify-center md:flex md:px-4 md:pb-4">
       <motion.div
         layout="position"
         initial={{ y: 42, opacity: 0, scale: 0.97 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 145, damping: 24, mass: 0.95 }}
-        className="pointer-events-auto relative z-20 w-fit max-w-[calc(100vw-1rem)] overflow-hidden rounded-2xl border border-black/20 p-1.5 md:max-w-[calc(100vw-2rem)] md:p-2"
+        className="pointer-events-auto relative z-20 w-fit max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-black/20 p-1 md:max-w-[calc(100vw-2rem)]"
       >
-        <div className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[#f3f1ea]/60 backdrop-blur-[8px]" />
-        <div className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[radial-gradient(circle_at_20%_20%,rgba(255,251,242,0.24),rgba(248,243,232,0.08)_55%,rgba(245,240,230,0.03)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 z-0 rounded-2xl shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.85),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.5)]" />
+        <div className="pointer-events-none absolute inset-0 z-0 rounded-xl bg-[#f3f1ea]/60 backdrop-blur-[8px]" />
+        <div className="pointer-events-none absolute inset-0 z-0 rounded-xl bg-[radial-gradient(circle_at_20%_20%,rgba(255,251,242,0.24),rgba(248,243,232,0.08)_55%,rgba(245,240,230,0.03)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 z-0 rounded-xl shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.85),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.5)]" />
 
-        <motion.nav className="relative z-10 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] md:gap-2 md:overflow-x-hidden [&::-webkit-scrollbar]:hidden">
-          {navItems.map((item) => (
-            <FloatingNavItem
-              key={item.key}
-              item={item}
-              isActive={activeKey === item.key}
-              isExpanded={activeKey === item.key}
-            />
-          ))}
+        <motion.nav className="relative z-10 flex items-center gap-1 overflow-x-auto pb-0.5 scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] md:gap-1.5 md:overflow-x-hidden [&::-webkit-scrollbar]:hidden">
+          {navItems.map((item) => {
+            const isNarrow = item.key === "Map" || item.key === "Beam" || item.key === "Pin Management" || item.key === "Report";
+            const itemWidth = isNarrow ? "w-[64px]" : "w-[80px]";
+            return (
+              <FloatingNavItem
+                key={item.key}
+                item={item}
+                isActive={activeKey === item.key}
+                itemWidth={itemWidth}
+              />
+            );
+          })}
         </motion.nav>
       </motion.div>
     </div>

@@ -253,7 +253,7 @@ export default function GiftPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex h-full flex-col items-center px-4 py-8"
+        className={cn("flex h-full flex-col items-center px-4 py-8", layoutMode === "modern" && "pb-16")}
       >
         <div className="w-full max-w-3xl">
           <motion.div

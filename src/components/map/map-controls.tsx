@@ -5,11 +5,12 @@ import { Button } from "~/components/shadcn/ui/button"
 interface MapControlsProps {
     onZoomIn: () => void
     onZoomOut: () => void
+    isModernLayout?: boolean
 }
 
-export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
+export function MapControls({ onZoomIn, onZoomOut, isModernLayout = false }: MapControlsProps) {
     return (
-        <div className="absolute top-24 right-4 z-20 flex flex-col gap-3">
+        <div className={`absolute right-4 z-20 flex flex-col gap-3 ${isModernLayout ? "top-12" : "top-24"}`}>
             <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/30 p-2 space-y-1">
                 <Button
                     variant="default"

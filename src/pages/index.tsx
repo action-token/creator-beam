@@ -78,7 +78,7 @@ export default function Home() {
   if (!mounted) return <HomePageSkeleton />
 
   return (
-    <div className="flex h-[calc(100vh-11vh)] flex-col  bg-background text-foreground overflow-hidden">
+    <div className="flex flex-col bg-background text-foreground overflow-hidden">
 
 
       {/* Hero Section with Video Background */}

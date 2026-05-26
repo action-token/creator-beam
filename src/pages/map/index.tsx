@@ -1,6 +1,7 @@
 "use client"
 
 import { memo, useEffect, useRef, useState } from "react"
+import { getCookie } from "cookies-next"
 import { APIProvider, AdvancedMarker, ColorScheme, Map, Marker, useMap } from "@vis.gl/react-google-maps"
 import { useSelectedAutoSuggestion } from "~/hooks/use-selectedAutoSuggestion"
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances"
@@ -46,14 +47,11 @@ type Pin = Location & {
 function CreatorMapDashboardContent() {
   const {
     duplicate,
-    manual,
     setManual,
     position,
     setPosition,
     openCreatePinModal,
     openPinDetailModal,
-    selectedPinForDetail,
-    closePinDetailModal,
     setPrevData,
     isPinCopied,
     isPinCut,
@@ -78,6 +76,7 @@ function CreatorMapDashboardContent() {
   } = useMapState()
   const mapContainerRef = useRef<HTMLDivElement>(null)
 
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern")
   const [showExpired, setShowExpired] = useState<boolean>(false)
   const [openHostpotModal, setOpenHotspotModal] = useState(false)
   const [hotspotData, setHotspotData] = useState<GeoJSON.Feature | null>(null)
@@ -113,6 +112,13 @@ function CreatorMapDashboardContent() {
     filterNearbyPins: (bounds) => filterNearbyPins(bounds, "my"),
     centerChanged,
   })
+
+  useEffect(() => {
+    const storedMode = getCookie("beam-layout-mode")
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode)
+    }
+  }, [])
 
   // Fetch creator storage balances
   api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
@@ -153,6 +159,7 @@ function CreatorMapDashboardContent() {
   }
 
   return (
+    <div className="size-full relative">
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
       <MapHeader
         showCreatorList={false}
@@ -178,15 +185,10 @@ function CreatorMapDashboardContent() {
 
         <Map
           onCenterChanged={(center) => {
-            const clampedCenter = {
-              lat: Math.max(-70, Math.min(70, center.detail.center.lat)),
-              lng: center.detail.center.lng
-            }
-            setMapCenter(clampedCenter)
+            setMapCenter(center.detail.center)
+            setCenterChanged(center.detail.bounds)
           }}
-          onZoomChanged={(zoom) => {
-            setMapZoom(zoom.detail.zoom)
-          }}
+          onZoomChanged={(zoom) => setMapZoom(zoom.detail.zoom)}
           colorScheme={theme === "dark" ? ColorScheme.DARK : ColorScheme.LIGHT}
           onClick={handleMapClick}
           mapId={"bf51eea910020fa25a"}
@@ -217,7 +219,9 @@ function CreatorMapDashboardContent() {
             </AdvancedMarker>
           )}
 
-          <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+          {!isCreatingHotspot && (
+            <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} isModernLayout={layoutMode === "modern"} />
+          )}
           <MyPins
             onPinClick={(pin) => {
               openPinDetailModal(pin)
@@ -236,7 +240,7 @@ function CreatorMapDashboardContent() {
         </Map>
       </div>
       <Link href="/map/collection-report">
-        <Button className="absolute bottom-24 right-6">
+        <Button className="absolute bottom-32 right-6">
           <ClipboardList className="mr-2 h-4 w-4" /> Collection Reports
         </Button>
       </Link>
@@ -262,6 +266,7 @@ function CreatorMapDashboardContent() {
         />
       )}
     </APIProvider>
+    </div>
   )
 }
 

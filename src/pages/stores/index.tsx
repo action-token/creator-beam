@@ -328,7 +328,7 @@ export default function StoredItemsView() {
                     )}
 
                     {/* STORED ITEMS TAB */}
-                    <TabsContent value="STORED" className="pt-4  ">
+                    <TabsContent value="STORED" className={cn("pt-4", layoutMode === "modern" && "pb-16")}>
                         <div className="flex flex-col sm:flex-row gap-4 mb-6">
                             <div className="relative flex-1">
                                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -541,7 +541,7 @@ export default function StoredItemsView() {
                             </AnimatePresence>
                         )}
                     </TabsContent>
-                    <TabsContent value="QR" className="pt-4">
+                    <TabsContent value="QR" className={cn("pt-4", layoutMode === "modern" && "pb-16")}>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {qrItems.isLoading && (
                                 <>
@@ -646,7 +646,7 @@ export default function StoredItemsView() {
                     </TabsContent>
 
 
-                    <TabsContent value="PageAsset" className="pt-4">
+                    <TabsContent value="PageAsset" className={cn("pt-4", layoutMode === "modern" && "pb-16")}>
                         <SellPageAssetList />
                     </TabsContent>
                 </Tabs>

@@ -209,7 +209,7 @@ export function BeamHomePageClient() {
 
     if (layoutMode === "modern") {
         return (
-            <div className="relative flex h-[calc(100vh-10.8vh)] w-full flex-col gap-4 overflow-y-auto px-3 pt-4 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0">
+            <div className="relative flex h-[calc(100vh-10.8vh)] pb-16 w-full flex-col gap-4 overflow-y-auto px-3 pt-4 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold text-foreground">BEAM Messages</h1>
                     <Button
